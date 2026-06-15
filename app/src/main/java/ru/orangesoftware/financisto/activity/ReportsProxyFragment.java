@@ -1,0 +1,24 @@
+package ru.orangesoftware.financisto.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+public class ReportsProxyFragment extends Fragment {
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return new View(requireContext());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        startActivity(new Intent(getActivity(), ReportsListActivity.class));
+    }
+}
+

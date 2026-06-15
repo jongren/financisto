@@ -36,7 +36,7 @@ public abstract class AbstractDbTest {
 
         Application application = ApplicationProvider.getApplicationContext();
         ShadowApplication app = Shadows.shadowOf(application);
-        app.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE);
+        app.grantPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         context = application;
         dbHelper = new DatabaseHelper(context);

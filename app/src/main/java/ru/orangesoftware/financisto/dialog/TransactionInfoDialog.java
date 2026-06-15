@@ -10,7 +10,7 @@
  ******************************************************************************/
 package ru.orangesoftware.financisto.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.text.format.DateUtils;
@@ -82,6 +82,41 @@ public class TransactionInfoDialog {
         showDialog(blotterActivity, transactionId, v, titleView);
     }
 
+    public void show(android.app.Activity hostActivity, long transactionId, Runnable onEditClick) {
+        TransactionInfo ti = db.getTransactionInfo(transactionId);
+        if (ti == null) {
+            Toast t = Toast.makeText(hostActivity, R.string.no_transaction_found, Toast.LENGTH_LONG);
+            t.show();
+            return;
+        }
+        if (ti.parentId > 0) {
+            ti = db.getTransactionInfo(ti.parentId);
+        }
+        View v = layoutInflater.inflate(R.layout.info_dialog, null);
+        LinearLayout layout = v.findViewById(R.id.list);
+
+        View titleView = createTitleView(ti, layout);
+        createMainInfoNodes(ti, layout);
+        createAdditionalInfoNodes(ti, layout);
+
+        final Dialog d = new AlertDialog.Builder(hostActivity)
+                .setCustomTitle(titleView)
+                .setView(v)
+                .create();
+        d.setCanceledOnTouchOutside(true);
+
+        Button bEdit = v.findViewById(R.id.bEdit);
+        bEdit.setOnClickListener(arg0 -> {
+            d.dismiss();
+            if (onEditClick != null) onEditClick.run();
+        });
+
+        Button bClose = v.findViewById(R.id.bClose);
+        bClose.setOnClickListener(arg0 -> d.dismiss());
+
+        d.show();
+    }
+
     private void createMainInfoNodes(TransactionInfo ti, LinearLayout layout) {
         if (ti.toAccount == null) {
             createLayoutForTransaction(ti, layout);
@@ -97,7 +132,7 @@ public class TransactionInfoDialog {
         if (ti.payee != null) {
             add(layout, R.string.payee, ti.payee.title);
         }
-        add(layout, R.string.category, ti.category.title);
+        add(layout, R.string.category, getCategoryTitle(ti.category));
         if (ti.originalCurrency != null) {
             TextView amount = add(layout, R.string.original_amount, "");
             u.setAmountText(amount, ti.originalCurrency, ti.originalFromAmount, true);
@@ -105,14 +140,15 @@ public class TransactionInfoDialog {
         TextView amount = add(layout, R.string.amount, "");
         u.setAmountText(amount, ti.fromAccount.currency, ti.fromAmount, true);
         if (ti.category.isSplit()) {
+            long parentPayeeId = ti.payee != null ? ti.payee.id : 0;
             List<Transaction> splits = db.getSplitsForTransaction(ti.id);
             for (Transaction split : splits) {
-                addSplitInfo(layout, fromAccount, split);
+                addSplitInfo(layout, fromAccount, split, parentPayeeId);
             }
         }
     }
 
-    private void addSplitInfo(LinearLayout layout, Account fromAccount, Transaction split) {
+    private void addSplitInfo(LinearLayout layout, Account fromAccount, Transaction split, long parentPayeeId) {
         if (split.isTransfer()) {
             Account toAccount = db.getAccount(split.toAccountId);
             String title = u.getTransferTitleText(fromAccount, toAccount);
@@ -125,6 +161,13 @@ public class TransactionInfoDialog {
             StringBuilder sb = new StringBuilder();
             if (c != null && c.id > 0) {
                 sb.append(c.title);
+            }
+            if (split.payeeId > 0 && split.payeeId != parentPayeeId) {
+                ru.orangesoftware.financisto.model.Payee payee =
+                        db.load(ru.orangesoftware.financisto.model.Payee.class, split.payeeId);
+                if (payee != null && isNotEmpty(payee.title)) {
+                    sb.append(" · ").append(payee.title);
+                }
             }
             if (isNotEmpty(split.note)) {
                 sb.append(" (").append(split.note).append(")");
@@ -149,8 +192,19 @@ public class TransactionInfoDialog {
             add(layout, R.string.payee, ti.payee != null ? ti.payee.title : "");
         }
         if (MyPreferences.isShowCategoryInTransferScreen(context)) {
-            add(layout, R.string.category, ti.category != null ? ti.category.title : "");
+            add(layout, R.string.category, getCategoryTitle(ti.category));
         }
+    }
+
+    private String getCategoryTitle(Category category) {
+        if (category == null) return "";
+        if (category.id == Category.SPLIT_CATEGORY_ID) {
+            return context.getString(R.string.split);
+        }
+        if (category.id == Category.NO_CATEGORY_ID) {
+            return context.getString(R.string.no_category);
+        }
+        return category.title;
     }
 
     private void createAdditionalInfoNodes(TransactionInfo ti, LinearLayout layout) {

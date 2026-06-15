@@ -11,7 +11,7 @@
 package ru.orangesoftware.financisto.export;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -111,8 +111,16 @@ public abstract class ImportExportAsyncTask extends AsyncTask<String, String, Ob
             if (exception.cause != null) {
                 sb.append(" : ").append(exception.cause);
             }
+            android.widget.TextView title = new android.widget.TextView(context);
+            title.setText(R.string.fail);
+            title.setBackgroundColor(context.getResources().getColor(R.color.colorPrimary));
+            title.setTextColor(android.graphics.Color.WHITE);
+            title.setTextSize(20);
+            title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+            int p = (int) (context.getResources().getDisplayMetrics().density * 16);
+            title.setPadding(p, p, p, p);
             new AlertDialog.Builder(context)
-                    .setTitle(R.string.fail)
+                    .setCustomTitle(title)
                     .setMessage(sb.toString())
                     .setPositiveButton(R.string.ok, null)
                     .show();
@@ -139,4 +147,3 @@ public abstract class ImportExportAsyncTask extends AsyncTask<String, String, Ob
     }
 
 }
-

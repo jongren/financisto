@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.SwitchCompat;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
@@ -58,13 +59,20 @@ public class RequestPermissionActivity extends Activity {
     @AfterViews
     public void initViews() {
         checkPermissions();
+        if (requestedPermission != null && !isGranted(requestedPermission)) {
+            ActivityCompat.requestPermissions(this, new String[]{requestedPermission}, 0);
+        }
     }
 
     private void checkPermissions() {
         disableToggleIfGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE, toggleWriteStorage, toggleWriteStorageWrap);
         disableToggleIfGranted(Manifest.permission.GET_ACCOUNTS, toggleGetAccounts, toggleGetAccountsWrap);
         disableToggleIfGranted(Manifest.permission.CAMERA, toggleCamera, toggleCameraWrap);
-        disableToggleIfGranted(Manifest.permission.RECEIVE_SMS, toggleSms, toggleSmsWrap);
+        if (ru.orangesoftware.financisto.BuildConfig.DEBUG) {
+            disableToggleIfGranted(Manifest.permission.RECEIVE_SMS, toggleSms, toggleSmsWrap);
+        } else {
+            toggleSmsWrap.setVisibility(View.GONE);
+        }
     }
 
     private void disableToggleIfGranted(String permission, CompoundButton toggleButton, ViewGroup wrapLayout) {

@@ -74,7 +74,7 @@ public class BudgetListAdapter extends BaseAdapter {
 			v = (Holder)convertView.getTag();
 		}
 		Budget b = getItem(position);
-		v.bottomView.setText("*/*");
+        v.bottomView.setText(R.string.budget_ratio_placeholder);
 		v.centerView.setText(b.title);
 		
 		Currency c = b.getBudgetCurrency();
@@ -110,6 +110,9 @@ public class BudgetListAdapter extends BaseAdapter {
 			}
 			if (!Utils.isEmpty(b.projectsText)) {
 				sb.append(" [").append(b.projectsText).append("]");
+			}
+			if (!Utils.isEmpty(b.payeesText)) {
+				sb.append(" (").append(b.payeesText).append(")");
 			}
 			v.bottomView.setText(sb.toString());
             if (b.amount > 0) {

@@ -569,6 +569,19 @@ public class MyPreferences {
         return sharedPreferences.getString(DROPBOX_AUTH_TOKEN, null);
     }
 
+    public static String getDropboxCredentialJson(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getString("dropbox_credential_json", null);
+    }
+
+    public static void storeDropboxCredentialJson(Context context, String json) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor e = sharedPreferences.edit();
+        e.putString("dropbox_credential_json", json);
+        e.putBoolean(DROPBOX_AUTHORIZE, true);
+        e.apply();
+    }
+
     public static void storeDropboxKeys(Context context, String sessionToken) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor e = sharedPreferences.edit();
@@ -582,6 +595,7 @@ public class MyPreferences {
         SharedPreferences.Editor e = sharedPreferences.edit();
         e.remove(DROPBOX_AUTH_TOKEN);
         e.remove(DROPBOX_AUTHORIZE);
+        e.remove("dropbox_credential_json");
         e.apply();
     }
 

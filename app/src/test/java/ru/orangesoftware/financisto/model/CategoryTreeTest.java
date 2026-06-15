@@ -12,18 +12,18 @@ public class CategoryTreeTest {
 
     @Before
     public void setUp() throws Exception {
-        a = createIncomeCategory(1, 1, 8);
+        a = createIncomeCategory(1, 2, 9);
         a.title = "ZZZ";
-        a.addChild(createCategory(2, 2, 3));
-        a.addChild(createCategory(3, 4, 5));
-        a.addChild(createCategory(4, 6, 7));
-        Category b = createCategory(5, 9, 16);
+        a.addChild(createCategory(2, 3, 4));
+        a.addChild(createCategory(3, 5, 6));
+        a.addChild(createCategory(4, 7, 8));
+        Category b = createCategory(5, 10, 17);
         b.title = "YYY";
-        Category b1 = createExpenseCategory(6, 11, 15);
+        Category b1 = createExpenseCategory(6, 12, 16);
         b.addChild(b1);
-        b1.addChild(createCategory(7, 11, 12));
-        b1.addChild(createCategory(8, 13, 14));
-        Category c = createIncomeCategory(9, 17, 18);
+        b1.addChild(createCategory(7, 12, 13));
+        b1.addChild(createCategory(8, 14, 15));
+        Category c = createIncomeCategory(9, 18, 19);
         c.title = "XXX";
         tree = new CategoryTree<Category>();
         tree.add(a);
@@ -79,12 +79,12 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryUp(1));
         Category a2 = tree.getAt(0);
         assertEquals(3, a2.id);
-        assertEquals(2, a2.left);
-        assertEquals(3, a2.right);
+        assertEquals(3, a2.left);
+        assertEquals(4, a2.right);
         Category a1 = tree.getAt(1);
         assertEquals(2, a1.id);
-        assertEquals(4, a1.left);
-        assertEquals(5, a1.right);
+        assertEquals(5, a1.left);
+        assertEquals(6, a1.right);
         assertTypesOfAllNodes();
     }
 
@@ -97,12 +97,12 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryDown(0));
         Category a2 = tree.getAt(0);
         assertEquals(3, a2.id);
-        assertEquals(2, a2.left);
-        assertEquals(3, a2.right);
+        assertEquals(3, a2.left);
+        assertEquals(4, a2.right);
         Category a1 = tree.getAt(1);
         assertEquals(2, a1.id);
-        assertEquals(4, a1.left);
-        assertEquals(5, a1.right);
+        assertEquals(5, a1.left);
+        assertEquals(6, a1.right);
         assertTypesOfAllNodes();
     }
 
@@ -112,20 +112,20 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryUp(1));
         Category a = tree.getAt(1);
         assertEquals(1, a.id);
-        assertEquals(9, a.left);
-        assertEquals(16, a.right);
+        assertEquals(10, a.left);
+        assertEquals(17, a.right);
         Category b = tree.getAt(0);
         assertEquals(5, b.id);
-        assertEquals(1, b.left);
-        assertEquals(8, b.right);
+        assertEquals(2, b.left);
+        assertEquals(9, b.right);
         Category b1 = b.children.getAt(0);
         assertEquals(6, b1.id);
-        assertEquals(2, b1.left);
-        assertEquals(7, b1.right);
+        assertEquals(3, b1.left);
+        assertEquals(8, b1.right);
         Category a1 = a.children.getAt(0);
         assertEquals(2, a1.id);
-        assertEquals(10, a1.left);
-        assertEquals(11, a1.right);
+        assertEquals(11, a1.left);
+        assertEquals(12, a1.right);
         assertTypesOfAllNodes();
     }
 
@@ -135,20 +135,20 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryDown(0));
         Category a = tree.getAt(1);
         assertEquals(1, a.id);
-        assertEquals(9, a.left);
-        assertEquals(16, a.right);
+        assertEquals(10, a.left);
+        assertEquals(17, a.right);
         Category b = tree.getAt(0);
         assertEquals(5, b.id);
-        assertEquals(1, b.left);
-        assertEquals(8, b.right);
+        assertEquals(2, b.left);
+        assertEquals(9, b.right);
         Category b1 = b.children.getAt(0);
         assertEquals(6, b1.id);
-        assertEquals(2, b1.left);
-        assertEquals(7, b1.right);
+        assertEquals(3, b1.left);
+        assertEquals(8, b1.right);
         Category a1 = a.children.getAt(0);
         assertEquals(2, a1.id);
-        assertEquals(10, a1.left);
-        assertEquals(11, a1.right);
+        assertEquals(11, a1.left);
+        assertEquals(12, a1.right);
         assertTypesOfAllNodes();
     }
 
@@ -161,12 +161,12 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryToTheTop(2));
         Category a3 = tree.getAt(0);
         assertEquals(4, a3.id);
-        assertEquals(2, a3.left);
-        assertEquals(3, a3.right);
+        assertEquals(3, a3.left);
+        assertEquals(4, a3.right);
         Category a1 = tree.getAt(1);
         assertEquals(2, a1.id);
-        assertEquals(4, a1.left);
-        assertEquals(5, a1.right);
+        assertEquals(5, a1.left);
+        assertEquals(6, a1.right);
         assertTypesOfAllNodes();
     }
 
@@ -179,12 +179,12 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryToTheBottom(1));
         Category a3 = tree.getAt(1);
         assertEquals(4, a3.id);
-        assertEquals(4, a3.left);
-        assertEquals(5, a3.right);
+        assertEquals(5, a3.left);
+        assertEquals(6, a3.right);
         Category a2 = tree.getAt(2);
         assertEquals(3, a2.id);
-        assertEquals(6, a2.left);
-        assertEquals(7, a2.right);
+        assertEquals(7, a2.left);
+        assertEquals(8, a2.right);
         assertTypesOfAllNodes();
     }
 
@@ -194,20 +194,20 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryToTheTop(1));
         Category a = tree.getAt(1);
         assertEquals(1, a.id);
-        assertEquals(9, a.left);
-        assertEquals(16, a.right);
+        assertEquals(10, a.left);
+        assertEquals(17, a.right);
         Category b = tree.getAt(0);
         assertEquals(5, b.id);
-        assertEquals(1, b.left);
-        assertEquals(8, b.right);
+        assertEquals(2, b.left);
+        assertEquals(9, b.right);
         Category b1 = b.children.getAt(0);
         assertEquals(6, b1.id);
-        assertEquals(2, b1.left);
-        assertEquals(7, b1.right);
+        assertEquals(3, b1.left);
+        assertEquals(8, b1.right);
         Category a1 = a.children.getAt(0);
         assertEquals(2, a1.id);
-        assertEquals(10, a1.left);
-        assertEquals(11, a1.right);
+        assertEquals(11, a1.left);
+        assertEquals(12, a1.right);
         assertTypesOfAllNodes();
     }
 
@@ -217,20 +217,20 @@ public class CategoryTreeTest {
         assertTrue(tree.moveCategoryToTheBottom(0));
         Category a = tree.getAt(2);
         assertEquals(1, a.id);
-        assertEquals(11, a.left);
-        assertEquals(18, a.right);
+        assertEquals(12, a.left);
+        assertEquals(19, a.right);
         Category b = tree.getAt(0);
         assertEquals(5, b.id);
-        assertEquals(1, b.left);
-        assertEquals(8, b.right);
+        assertEquals(2, b.left);
+        assertEquals(9, b.right);
         Category b1 = b.children.getAt(0);
         assertEquals(6, b1.id);
-        assertEquals(2, b1.left);
-        assertEquals(7, b1.right);
+        assertEquals(3, b1.left);
+        assertEquals(8, b1.right);
         Category a1 = a.children.getAt(0);
         assertEquals(2, a1.id);
-        assertEquals(12, a1.left);
-        assertEquals(13, a1.right);
+        assertEquals(13, a1.left);
+        assertEquals(14, a1.right);
         assertTypesOfAllNodes();
     }
 

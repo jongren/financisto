@@ -185,6 +185,13 @@ public class CategoryTree<T extends CategoryEntity<T>> implements Iterable<T> {
 				left = node.left;
 			}
 		}
+		if (left < 2 && !roots.isEmpty() && roots.get(0).parent == null) {
+			left = 2;
+		}
+		reIndex(this, left);
+	}
+
+	public void reIndex(int left) {
 		reIndex(this, left);
 	}
 

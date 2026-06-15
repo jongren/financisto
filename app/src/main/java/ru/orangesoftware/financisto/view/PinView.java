@@ -82,28 +82,39 @@ public class PinView implements OnClickListener {
 		return v;
 	}
 	
-	@Override
-	public void onClick(View v) {
-		Button b = (Button)v;
-		char c = b.getText().charAt(0);
+    @Override
+    public void onClick(View v) {
         if (vibrator != null && MyPreferences.isPinHapticFeedbackEnabled(context)) {
             vibrator.vibrate(20);
         }
-		switch (c) {
-		case 'O':
-			nextStep();
-			break;
-		case 'C':
-			result.setText("");
-			break;
-		default:
-            String text = result.getText().toString();
-			if (text.length() < 7) {
-				result.setText(text+String.valueOf(c));
-			}
-			break;
-		}
-	}
+        int id = v.getId();
+        if (id == R.id.bClear) {
+            nextStep();
+            return;
+        }
+        if (id == R.id.bHelp) {
+            result.setText("");
+            return;
+        }
+        String text = result.getText().toString();
+        if (text.length() >= 7) {
+            return;
+        }
+        switch (id) {
+            case R.id.b0: result.setText(text + "0"); break;
+            case R.id.b1: result.setText(text + "1"); break;
+            case R.id.b2: result.setText(text + "2"); break;
+            case R.id.b3: result.setText(text + "3"); break;
+            case R.id.b4: result.setText(text + "4"); break;
+            case R.id.b5: result.setText(text + "5"); break;
+            case R.id.b6: result.setText(text + "6"); break;
+            case R.id.b7: result.setText(text + "7"); break;
+            case R.id.b8: result.setText(text + "8"); break;
+            case R.id.b9: result.setText(text + "9"); break;
+            default:
+                break;
+        }
+    }
 
 	private void nextStep() {
 		if (confirmPin) {

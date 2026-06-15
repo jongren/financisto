@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
+import com.dropbox.core.oauth.DbxCredential;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.http.OkHttp3Requestor;
 import com.dropbox.core.util.IOUtil;
@@ -33,7 +34,7 @@ import java.util.*;
 
 public class Dropbox {
 
-    private static final String APP_KEY = "INSERT_APP_KEY_HERE";
+    private static final String APP_KEY = "lj2w50v9awi0iuy";
 
     private final Context context;
 
@@ -46,17 +47,31 @@ public class Dropbox {
 
     public void startAuth() {
         startedAuth = true;
-        Auth.startOAuth2Authentication(context, APP_KEY);
+        DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder("financisto")
+                .withHttpRequestor(new OkHttp3Requestor(new okhttp3.OkHttpClient()))
+                .build();
+        List<String> scopes = Arrays.asList("files.content.write", "files.content.read", "files.metadata.read");
+        Auth.startOAuth2PKCE(context, APP_KEY, requestConfig, scopes);
     }
 
     public void completeAuth() {
         try {
-            String authToken = Auth.getOAuth2Token();
-            if (startedAuth && authToken != null) {
+            DbxCredential credential = Auth.getDbxCredential();
+            if (startedAuth && credential != null) {
                 try {
-                    MyPreferences.storeDropboxKeys(context, authToken);
-                } catch (IllegalStateException e) {
+                    String json = DbxCredential.Writer.writeToString(credential);
+                    MyPreferences.storeDropboxCredentialJson(context, json);
+                    MyPreferences.storeDropboxKeys(context, credential.getAccessToken());
+                } catch (Exception e) {
                     Log.i("Financisto", "Error authenticating Dropbox", e);
+                }
+            } else if (credential != null) {
+                try {
+                    String json = DbxCredential.Writer.writeToString(credential);
+                    MyPreferences.storeDropboxCredentialJson(context, json);
+                    MyPreferences.storeDropboxKeys(context, credential.getAccessToken());
+                } catch (Exception e) {
+                    Log.i("Financisto", "Error authenticating Dropbox (fallback)", e);
                 }
             }
         } finally {
@@ -76,17 +91,30 @@ public class Dropbox {
     }
 
     private boolean authSession() {
-        String accessToken = MyPreferences.getDropboxAuthToken(context);
-        if (accessToken != null) {
-            if (dropboxClient == null) {
-                DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder("financisto")
-                        .withHttpRequestor(new OkHttp3Requestor(OkHttp3Requestor.defaultOkHttpClient()))
-                        .build();
-                dropboxClient = new DbxClientV2(requestConfig, accessToken);
+        if (dropboxClient == null) {
+            DbxCredential credential = null;
+            String json = MyPreferences.getDropboxCredentialJson(context);
+            if (json != null) {
+                try {
+                    credential = DbxCredential.Reader.readFully(json);
+                } catch (Exception e) {
+                    Log.e("Financisto", "Error deserializing Dropbox credential", e);
+                }
             }
-            return true;
+            if (credential == null) {
+                String oldToken = MyPreferences.getDropboxAuthToken(context);
+                if (oldToken != null) {
+                    credential = new DbxCredential(oldToken, -1L, null, APP_KEY);
+                }
+            }
+            if (credential != null) {
+                DbxRequestConfig requestConfig = DbxRequestConfig.newBuilder("financisto")
+                        .withHttpRequestor(new OkHttp3Requestor(new okhttp3.OkHttpClient()))
+                        .build();
+                dropboxClient = new DbxClientV2(requestConfig, credential);
+            }
         }
-        return false;
+        return dropboxClient != null;
     }
 
     public FileMetadata uploadFile(File file) throws Exception {

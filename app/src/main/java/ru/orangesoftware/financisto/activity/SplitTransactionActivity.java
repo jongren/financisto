@@ -23,6 +23,7 @@ public class SplitTransactionActivity extends AbstractSplitActivity implements C
     private AmountInput amountInput;
 
     private CategorySelector<SplitTransactionActivity> categorySelector;
+    private PayeeSelector<SplitTransactionActivity> payeeSelector;
 
     public SplitTransactionActivity() {
         super(R.layout.split_fixed);
@@ -30,6 +31,7 @@ public class SplitTransactionActivity extends AbstractSplitActivity implements C
 
     @Override
     protected void createUI(LinearLayout layout) {
+        payeeSelector.createNode(layout);
         categorySelector.createNode(layout, SPLIT);
 
         amountInput = AmountInput_.build(this);
@@ -46,12 +48,15 @@ public class SplitTransactionActivity extends AbstractSplitActivity implements C
         categorySelector.setListener(this);
         categorySelector.doNotShowSplitCategory();
         categorySelector.fetchCategories(false);
+        payeeSelector = new PayeeSelector<>(this, db, x);
+        payeeSelector.fetchEntities();
     }
 
     @Override
     protected void updateUI() {
         super.updateUI();
         categorySelector.selectCategory(split.categoryId);
+        payeeSelector.selectEntity(split.payeeId);
         setAmount(split.fromAmount);
     }
 
@@ -59,6 +64,7 @@ public class SplitTransactionActivity extends AbstractSplitActivity implements C
     protected boolean updateFromUI() {
         super.updateFromUI();
         split.fromAmount = amountInput.getAmount();
+        split.payeeId = payeeSelector.getSelectedEntityId();
         split.categoryAttributes = getAttributes();
         return true;
     }
@@ -94,18 +100,27 @@ public class SplitTransactionActivity extends AbstractSplitActivity implements C
     protected void onClick(View v, int id) {
         super.onClick(v, id);
         categorySelector.onClick(id);
+        payeeSelector.onClick(id);
     }
 
     @Override
     public void onSelectedId(int id, long selectedId) {
         super.onSelectedId(id, selectedId);
         categorySelector.onSelectedId(id, selectedId);
+        payeeSelector.onSelectedId(id, selectedId);
+    }
+
+    @Override
+    public void onSelectedPos(int id, int selectedPos) {
+        super.onSelectedPos(id, selectedPos);
+        payeeSelector.onSelectedPos(id, selectedPos);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         categorySelector.onActivityResult(requestCode, resultCode, data);
+        payeeSelector.onActivityResult(requestCode, resultCode, data);
     }
 
 

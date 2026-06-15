@@ -48,9 +48,6 @@ public abstract class Export {
     }
 
     public String export() throws Exception {
-        if (!RequestPermission.checkPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            throw new ImportExportException(R.string.request_permissions_storage_not_granted);
-        }
         File path = getBackupFolder(context);
         String fileName = generateFilename();
         File file = new File(path, fileName);
@@ -108,9 +105,12 @@ public abstract class Export {
         if (file.isDirectory() && file.canWrite()) {
             return file;
         }
-        file = Export.DEFAULT_EXPORT_PATH;
-        file.mkdirs();
-        return file;
+        File appExternal = context.getExternalFilesDir("financisto");
+        if (appExternal != null) {
+            appExternal.mkdirs();
+            return appExternal;
+        }
+        return context.getFilesDir();
     }
 
     public static File getBackupFile(Context context, String backupFileName) {

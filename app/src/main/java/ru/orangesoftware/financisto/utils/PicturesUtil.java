@@ -12,19 +12,18 @@ import java.util.Date;
 
 public class PicturesUtil {
 
-    private static final File PICTURES_DIR = new File(Environment.getExternalStorageDirectory(), "financisto/pictures");
     private static final File LEGACY_PICTURES_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
     private static final SimpleDateFormat PICTURE_FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMddHHmmssSS");
 
-    public static File createEmptyImageFile() {
-        return pictureFile(PicturesUtil.PICTURE_FILE_NAME_FORMAT.format(new Date()) + ".jpg", false);
+    public static File createEmptyImageFile(Context context) {
+        return pictureFile(context, PicturesUtil.PICTURE_FILE_NAME_FORMAT.format(new Date()) + ".jpg", false);
     }
 
-    public static File pictureFile(String pictureFileName, boolean fallbackToLegacy) {
-        if (!PICTURES_DIR.exists()) PICTURES_DIR.mkdirs();
-        
-        File file = new File(PICTURES_DIR, pictureFileName);
+    public static File pictureFile(Context context, String pictureFileName, boolean fallbackToLegacy) {
+        File dir = context.getExternalFilesDir("pictures");
+        if (dir != null && !dir.exists()) dir.mkdirs();
+        File file = new File(dir != null ? dir : context.getFilesDir(), pictureFileName);
         if (fallbackToLegacy && !file.exists()) {
             file = new File(LEGACY_PICTURES_DIR, pictureFileName);
         }
@@ -33,10 +32,16 @@ public class PicturesUtil {
 
     public static void showImage(Context context, ImageView imageView, String pictureFileName) {
         if (pictureFileName == null || imageView == null) return;
+        File file = PicturesUtil.pictureFile(context, pictureFileName, true);
+        android.net.Uri uri = androidx.core.content.FileProvider.getUriForFile(context,
+                ru.orangesoftware.financisto.BuildConfig.APPLICATION_ID,
+                file);
+        imageView.setImageTintList(null);
+        imageView.clearColorFilter();
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(context)
-                .load(PicturesUtil.pictureFile(pictureFileName, true))
+                .load(uri)
                 .transition(new DrawableTransitionOptions().crossFade())
-                //.override(320, 320)
                 .into(imageView);
     }
 }

@@ -10,13 +10,14 @@
  ******************************************************************************/
 package ru.orangesoftware.financisto.backup;
 
+import android.net.Uri;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
 import com.dropbox.core.util.IOUtil;
-import com.google.android.gms.drive.DriveContents;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,9 +56,8 @@ public class DatabaseImport extends FullDatabaseImport {
         return new DatabaseImport(context, dbAdapter, inputStream);
     }
 
-    public static DatabaseImport createFromGoogleDriveBackup(Context context, DatabaseAdapter db, DriveContents driveFileContents)
+    public static DatabaseImport createFromGoogleDriveBackup(Context context, DatabaseAdapter db, InputStream inputStream)
             throws IOException {
-        InputStream inputStream = driveFileContents.getInputStream();
         InputStream in = new GZIPInputStream(inputStream);
         return new DatabaseImport(context, db, in);
     }
@@ -67,6 +67,13 @@ public class DatabaseImport extends FullDatabaseImport {
         InputStream inputStream = dropbox.getFileAsStream(backupFile);
         InputStream in = new GZIPInputStream(inputStream);
         return new DatabaseImport(context, dbAdapter, in);
+    }
+
+    public static DatabaseImport createFromContentUri(Context context, DatabaseAdapter dbAdapter, Uri uri)
+            throws FileNotFoundException {
+        ContentResolver cr = context.getContentResolver();
+        InputStream inputStream = cr.openInputStream(uri);
+        return new DatabaseImport(context, dbAdapter, inputStream);
     }
 
     private DatabaseImport(Context context, DatabaseAdapter dbAdapter, InputStream backupStream) {

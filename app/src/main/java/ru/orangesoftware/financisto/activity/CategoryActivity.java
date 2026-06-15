@@ -1,6 +1,6 @@
 package ru.orangesoftware.financisto.activity;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -96,9 +96,11 @@ public class CategoryActivity extends AbstractActivity implements CategorySelect
         LinearLayout layout = findViewById(R.id.layout);
         x.addEditNode(layout, R.string.title, titleLayout);
 
-        smsTemplatesLayout = x.addTitleNodeNoDivider(layout, R.string.sms_templates).findViewById(R.id.layout);
-        x.addInfoNodePlus(smsTemplatesLayout, R.id.new_sms_template, R.id.new_sms_template, R.string.add_sms_template);
-        addSmsTemplates();
+        if (ru.orangesoftware.financisto.BuildConfig.DEBUG) {
+            smsTemplatesLayout = x.addTitleNodeNoDivider(layout, R.string.sms_templates).findViewById(R.id.layout);
+            x.addInfoNodePlus(smsTemplatesLayout, R.id.new_sms_template, R.id.new_sms_template, R.string.add_sms_template);
+            addSmsTemplates();
+        }
 
         attributesLayout = x.addTitleNodeNoDivider(layout, R.string.attributes).findViewById(R.id.layout);
         x.addInfoNodePlus(attributesLayout, R.id.new_attribute, R.id.add_attribute, R.string.add_attribute);
@@ -257,7 +259,7 @@ public class CategoryActivity extends AbstractActivity implements CategorySelect
             case R.id.category_show_filter:
             case R.id.category_close_filter:
             case R.id.category_show_list:
-                parentCatSelector.onClick(R.id.category);
+                parentCatSelector.onClick(id);
                 break;
 
             // Attributes >>

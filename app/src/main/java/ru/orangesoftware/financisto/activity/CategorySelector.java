@@ -148,7 +148,11 @@ public class CategorySelector<A extends AbstractActivity> {
                 filterNode = x.addCategoryNodeForTransaction(layout, emptyResId);
                 break;
             }
-            case PARENT:
+            case PARENT: {
+                if (emptyResId <= 0) setEmptyResId(R.string.no_category);
+                filterNode = x.addCategoryNodeForFilter(layout, emptyResId);
+                break;
+            }
             case SPLIT:
             case TRANSFER: {
                 if (emptyResId <= 0) setEmptyResId(R.string.no_category);
@@ -300,7 +304,13 @@ public class CategorySelector<A extends AbstractActivity> {
             if (selectedCategoryId != categoryId) {
                 Category category = db.getCategoryWithParent(categoryId);
                 if (category != null) {
-                    categoryText.setText(Category.getTitle(category.title, category.level));
+                    if (category.id == Category.SPLIT_CATEGORY_ID) {
+                        categoryText.setText(activity.getString(R.string.split));
+                    } else if (category.id == Category.NO_CATEGORY_ID) {
+                        categoryText.setText(activity.getString(R.string.no_category));
+                    } else {
+                        categoryText.setText(Category.getTitle(category.title, category.level));
+                    }
                     showHideMinusBtn(true);
                 }
                 selectedCategoryId = categoryId;

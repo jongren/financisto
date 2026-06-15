@@ -11,7 +11,7 @@
  ******************************************************************************/
 package ru.orangesoftware.financisto.activity;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -39,11 +39,10 @@ import ru.orangesoftware.financisto.export.drive.DoDriveBackup;
 import ru.orangesoftware.financisto.export.drive.DoDriveListFiles;
 import ru.orangesoftware.financisto.export.drive.DoDriveRestore;
 import ru.orangesoftware.financisto.export.drive.DriveBackupError;
-import ru.orangesoftware.financisto.export.drive.DriveBackupFailure;
 import ru.orangesoftware.financisto.export.drive.DriveBackupSuccess;
-import ru.orangesoftware.financisto.export.drive.DriveConnectionFailed;
 import ru.orangesoftware.financisto.export.drive.DriveFileInfo;
 import ru.orangesoftware.financisto.export.drive.DriveFileList;
+import ru.orangesoftware.financisto.export.drive.DriveNeedAuth;
 import ru.orangesoftware.financisto.export.drive.DriveRestoreSuccess;
 import ru.orangesoftware.financisto.export.drive.DropboxFileList;
 import ru.orangesoftware.financisto.export.dropbox.DropboxBackupTask;
@@ -72,12 +71,12 @@ public class MenuListActivity extends ListActivity {
 
     @AfterViews
     protected void init() {
-        setListAdapter(new SummaryEntityListAdapter(this, MenuListItem.values()));
+        setListAdapter(new SummaryEntityListAdapter(this, MenuListItem.getAvailableItems()));
     }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        MenuListItem.values()[position].call(this);
+        ((MenuListItem) getListAdapter().getItem(position)).call(this);
     }
 
     @OnActivityResult(MenuListItem.ACTIVITY_CSV_EXPORT)
@@ -109,6 +108,20 @@ public class MenuListActivity extends ListActivity {
         if (resultCode == RESULT_OK) {
             QifImportOptions options = QifImportOptions.fromIntent(data);
             MenuListItem.doQifImport(this, options);
+        }
+    }
+
+    @OnActivityResult(MenuListItem.ACTIVITY_SAF_RESTORE)
+    public void onSafRestoreResult(int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && data != null) {
+            android.net.Uri uri = data.getData();
+            int flags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+            try {
+                getContentResolver().takePersistableUriPermission(uri, flags);
+            } catch (Exception ignored) {
+            }
+            ProgressDialog pd = ProgressDialog.show(this, null, getString(R.string.restore_database_inprogress), true);
+            new ru.orangesoftware.financisto.export.BackupImportFromUriTask(this, pd, uri).execute();
         }
     }
 
@@ -186,34 +199,12 @@ public class MenuListActivity extends ListActivity {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDriveConnectionFailed(DriveConnectionFailed event) {
+    public void onDriveNeedAuth(DriveNeedAuth event) {
         dismissProgressDialog();
-        ConnectionResult connectionResult = event.connectionResult;
-        if (connectionResult.hasResolution()) {
-            try {
-                connectionResult.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
-            } catch (IntentSender.SendIntentException e) {
-                // Unable to resolve, message user appropriately
-                onDriveBackupError(new DriveBackupError(e.getMessage()));
-            }
-        } else {
-            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
-        }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDriveBackupFailed(DriveBackupFailure event) {
-        dismissProgressDialog();
-        Status status = event.status;
-        if (status.hasResolution()) {
-            try {
-                status.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
-            } catch (IntentSender.SendIntentException e) {
-                // Unable to resolve, message user appropriately
-                onDriveBackupError(new DriveBackupError(e.getMessage()));
-            }
-        } else {
-            GooglePlayServicesUtil.getErrorDialog(status.getStatusCode(), this, 0).show();
+        try {
+            startActivityForResult(event.intent, RESOLVE_CONNECTION_REQUEST_CODE);
+        } catch (Exception e) {
+            onDriveBackupError(new DriveBackupError(e.getMessage()));
         }
     }
 

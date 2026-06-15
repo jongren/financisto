@@ -49,11 +49,11 @@ public class AmountPicker extends LinearLayout implements NumberPicker.OnChanged
         addPickers(context, lpFixedWrap, integers);
         if (decimals > 0) {
         	TextView dotText = new TextView(context);
-        	dotText.setText(".");
-        	dotText.setGravity(Gravity.BOTTOM);
-        	dotText.setTextSize(pickerWidth/2);
-        	addView(dotText, lpWrapFill);
-        	addPickers(context, lpFixedWrap, fractions);
+        	dotText.setText(getResources().getString(R.string.decimal_point));
+            dotText.setGravity(Gravity.BOTTOM);
+            dotText.setTextSize(pickerWidth/2);
+            addView(dotText, lpWrapFill);
+            addPickers(context, lpFixedWrap, fractions);
         }
 	}
 	

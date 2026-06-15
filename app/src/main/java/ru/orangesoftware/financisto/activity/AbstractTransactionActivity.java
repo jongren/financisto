@@ -10,9 +10,9 @@ import android.view.View;
 import android.view.Window;
 import android.widget.*;
 
-import com.mlsdev.rximagepicker.RxImageConverters;
-import com.mlsdev.rximagepicker.RxImagePicker;
-import com.mlsdev.rximagepicker.Sources;
+import android.net.Uri;
+import android.provider.MediaStore;
+import androidx.core.content.FileProvider;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
@@ -109,6 +109,7 @@ public abstract class AbstractTransactionActivity extends AbstractActivity imple
     protected DateFormat tf;
 
     private QuickActionWidget pickImageActionGrid;
+    private String pendingCameraFileName;
 
     protected Transaction transaction = new Transaction();
 
@@ -312,14 +313,28 @@ public abstract class AbstractTransactionActivity extends AbstractActivity imple
         });
     }
 
+    protected enum Sources { CAMERA, GALLERY }
+
     protected void requestImage(Sources source) {
         transaction.blobKey = null;
-        disposable.add(RxImagePicker.with(getFragmentManager()).requestImage(source)
-                .flatMap(uri -> RxImageConverters.uriToFile(this, uri, PicturesUtil.createEmptyImageFile()))
-                .subscribe(
-                        file -> selectPicture(file.getName()),
-                        e -> Toast.makeText(AbstractTransactionActivity.this, "Unable to pick up an image: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                ));
+        if (source == Sources.CAMERA) {
+            try {
+                java.io.File file = PicturesUtil.createEmptyImageFile(this);
+                pendingCameraFileName = file.getName();
+                Uri uri = FileProvider.getUriForFile(this, getPackageName(), file);
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivityForResult(cameraIntent, PICTURE_REQUEST);
+            } catch (Exception e) {
+                Toast.makeText(this, getString(R.string.unable_to_start_camera, e.getMessage()), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Intent pickIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            pickIntent.setType("image/*");
+            pickIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(pickIntent, PICTURE_REQUEST);
+        }
     }
 
     protected void createPayeeNode(LinearLayout layout) {
@@ -560,12 +575,39 @@ public abstract class AbstractTransactionActivity extends AbstractActivity imple
                     String notificationOptions = data.getStringExtra(NotificationOptionsActivity.NOTIFICATION_OPTIONS);
                     setNotification(notificationOptions);
                     break;
+                case PICTURE_REQUEST: {
+                    if (data != null && data.getData() != null) {
+                        Uri uri = data.getData();
+                        java.io.File dest = PicturesUtil.createEmptyImageFile(this);
+                        try {
+                            copyUriToFile(uri, dest);
+                            selectPicture(dest.getName());
+                        } catch (Exception e) {
+                            Toast.makeText(this, getString(R.string.unable_to_pick_image, e.getMessage()), Toast.LENGTH_LONG).show();
+                        }
+                    } else if (pendingCameraFileName != null) {
+                        selectPicture(pendingCameraFileName);
+                        pendingCameraFileName = null;
+                    }
+                    break;
+                }
                 default:
                     break;
             }
         } else {
             if (requestCode == PICTURE_REQUEST) {
                 removePicture();
+            }
+        }
+    }
+
+    private void copyUriToFile(Uri uri, java.io.File dest) throws java.io.IOException {
+        try (java.io.InputStream in = getContentResolver().openInputStream(uri);
+             java.io.OutputStream out = new java.io.FileOutputStream(dest)) {
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
             }
         }
     }

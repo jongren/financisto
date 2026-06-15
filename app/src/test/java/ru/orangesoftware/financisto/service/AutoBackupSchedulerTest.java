@@ -7,8 +7,11 @@ import ru.orangesoftware.financisto.test.DateTime;
 import static ru.orangesoftware.financisto.test.DateTime.date;
 import static org.junit.Assert.*;
 
+import org.junit.Test;
+
 public class AutoBackupSchedulerTest {
 
+    @Test
     public void test_should_schedule_auto_backup_at_specified_time() {
         assertEquals(date(2011, 12, 16).at(6, 0, 0, 0).asDate(), scheduleAt(date(2011, 12, 16).at(0, 0, 0, 0)));
         assertEquals(date(2011, 12, 17).at(6, 0, 0, 0).asDate(), scheduleAt(date(2011, 12, 16).at(8, 0, 0, 0)));

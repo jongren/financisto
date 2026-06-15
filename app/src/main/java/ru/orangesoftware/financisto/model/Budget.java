@@ -39,6 +39,9 @@ public class Budget implements SortableEntity {
 	@Column(name = "project_id")
 	public String projects;
 
+	@Column(name = "payee_id")
+	public String payees;
+
     @Column(name = "currency_id")
     public long currencyId = -1;
 
@@ -92,6 +95,9 @@ public class Budget implements SortableEntity {
 
 	@Transient
 	public String projectsText = "";
+
+	@Transient
+	public String payeesText = "";
 	
 	@Transient
 	public long spent = 0;
@@ -104,6 +110,10 @@ public class Budget implements SortableEntity {
 	}
 	
 	public static String createWhere(Budget b, Map<Long, Category> categories, Map<Long, Project> projects) {
+		return createWhere(b, categories, projects, java.util.Collections.emptyMap());
+	}
+
+	public static String createWhere(Budget b, Map<Long, Category> categories, Map<Long, Project> projects, Map<Long, Payee> payees) {
 		StringBuilder sb = new StringBuilder();
 		// currency
         if (b.currency != null) {
@@ -113,20 +123,27 @@ public class Budget implements SortableEntity {
         } else {
             sb.append(" 1=1 ");
         }
-		// categories & projects
+
+		// categories, projects, payees
 		String categoriesWhere = createCategoriesWhere(b, categories);
-		boolean hasCategories = isNotEmpty(categoriesWhere);
 		String projectWhere = createProjectsWhere(b, projects);
-		boolean hasProjects = isNotEmpty(projectWhere);
-		if (hasCategories && hasProjects) {
-			sb.append(" AND ((").append(categoriesWhere).append(") ");
-			sb.append(b.expanded ? "OR" : "AND");
-			sb.append(" (").append(projectWhere).append("))");
-		} else if (hasCategories) {
-			sb.append(" AND (").append(categoriesWhere).append(")");
-		} else if (hasProjects) {
-			sb.append(" AND (").append(projectWhere).append(")");
+		String payeeWhere = createPayeesWhere(b, payees);
+
+		java.util.List<String> conditions = new java.util.ArrayList<>();
+		if (isNotEmpty(categoriesWhere)) conditions.add("(" + categoriesWhere + ")");
+		if (isNotEmpty(projectWhere)) conditions.add("(" + projectWhere + ")");
+		if (isNotEmpty(payeeWhere)) conditions.add("(" + payeeWhere + ")");
+
+		if (!conditions.isEmpty()) {
+			String separator = b.expanded ? " OR " : " AND ";
+			sb.append(" AND (");
+			for (int i = 0; i < conditions.size(); i++) {
+				if (i > 0) sb.append(separator);
+				sb.append(conditions.get(i));
+			}
+			sb.append(")");
 		}
+
 		// start date
 		if (b.startDate > 0) {
 			sb.append(" AND ").append(BlotterFilter.DATETIME).append(">=").append(b.startDate);
@@ -179,6 +196,28 @@ public class Budget implements SortableEntity {
 						sb.append(" OR ");
 					}
 					sb.append(BlotterFilter.PROJECT_ID).append("=").append(p.id);
+					f = true;
+				}
+			}
+			if (f) {
+				return sb.toString();
+			}
+		}
+		return null;
+	}
+
+	private static String createPayeesWhere(Budget b, Map<Long, Payee> payees) {
+		long[] ids = MyEntity.splitIds(b.payees);
+		if (ids != null) {
+			StringBuilder sb = new StringBuilder();
+			boolean f = false;
+			for (long id : ids) {
+				Payee p = payees.get(id);
+				if (p != null) {
+					if (f) {
+						sb.append(" OR ");
+					}
+					sb.append(BlotterFilter.PAYEE_ID).append("=").append(p.id);
 					f = true;
 				}
 			}

@@ -41,10 +41,12 @@ public class BudgetsTotalCalculator {
         try {
             Map<Long, Category> categories = MyEntity.asMap(db.getCategoriesList(true));
             Map<Long, Project> projects = MyEntity.asMap(db.getAllProjectsList(true));
+            final Map<Long, Payee> payees = db.getAllPayeeByIdMap();
             for (final Budget b : budgets) {
-                final long spent = db.fetchBudgetBalance(categories, projects, b);
+                final long spent = db.fetchBudgetBalance(categories, projects, payees, b);
                 final String categoriesText = getChecked(categories, b.categories);
                 final String projectsText = getChecked(projects, b.projects);
+                final String payeesText = getChecked(payees, b.payees);
                 b.spent = spent;
                 if (handler != null) {
                     handler.post(new Runnable() {
@@ -54,8 +56,15 @@ public class BudgetsTotalCalculator {
                             b.spent = spent;
                             b.categoriesText = categoriesText;
                             b.projectsText = projectsText;
+                            b.payeesText = payeesText;
                         }
                     });
+                } else {
+                    // No handler: set synchronously in the current (background) thread
+                    b.updated = true;
+                    b.categoriesText = categoriesText;
+                    b.projectsText = projectsText;
+                    b.payeesText = payeesText;
                 }
             }
         } finally {

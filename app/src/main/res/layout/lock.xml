@@ -128,7 +128,7 @@
             <Button
                 android:id="@+id/bHelp"
                 style="@style/LockButton"
-                android:text="C"
+                android:text="@string/clear"
                 android:textColor="#f26522"
                 android:textStyle="bold" />
 
@@ -140,7 +140,7 @@
             <Button
                 android:id="@+id/bClear"
                 style="@style/LockButton"
-                android:text="OK"
+                android:text="@string/ok"
                 android:textColor="#39b54a"
                 android:textStyle="bold" />
         </TableRow>
@@ -150,5 +150,16 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/use_fingerprint"
+        style="@style/BorderlessButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="10dp"
+        android:text="@string/pin_protection_use_fingerprint"
+        android:textColor="@color/material_blue_gray"
+        android:textStyle="bold" />
 
 </LinearLayout>

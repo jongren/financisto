@@ -14,11 +14,12 @@
     <color name="holo_orange_light">#ffffbb33</color>
     <color name="holo_orange_dark">#ffff9800</color>
     <color name="holo_blue_bright">#ff00ddff</color>
-    <color name="holo_gray_bright">#FFCCCCCC</color>
+    <color name="holo_gray_bright">#ffe0e0e0</color>
     <color name="material_orange">#F4511E</color>
     <color name="material_teal">#009688</color>
     <color name="material_blue_gray">#546E7A</color>
     <color name="material_cyan">#00BCD4</color>
     <color name="material_brown">#795548</color>
     <color name="calculator_background">#424242</color>
+    <color name="almost_black">#AA0F0F0F</color>
 </resources>
