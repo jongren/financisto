@@ -10,7 +10,7 @@
  ******************************************************************************/
 package ru.orangesoftware.financisto.activity;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -87,6 +87,9 @@ public class AccountListActivity extends AbstractListActivity {
                 PopupMenu popupMenu = new PopupMenu(AccountListActivity.this, bMenu);
                 MenuInflater inflater = getMenuInflater();
                 inflater.inflate(R.menu.account_list_menu, popupMenu.getMenu());
+                if (!ru.orangesoftware.financisto.BuildConfig.DEBUG) {
+                    popupMenu.getMenu().removeItem(R.id.google_sheets_sync);
+                }
                 popupMenu.setOnMenuItemClickListener(item -> {
                     handlePopupMenu(item.getItemId());
                     return true;
@@ -102,6 +105,9 @@ public class AccountListActivity extends AbstractListActivity {
         switch (id) {
             case R.id.backup:
                 MenuListItem.MENU_BACKUP.call(this);
+                break;
+            case R.id.google_sheets_sync:
+                MenuListItem.MENU_GOOGLE_SHEETS_SYNC.call(this);
                 break;
             case R.id.go_to_menu:
                 GreenRobotBus_.getInstance_(this).post(new SwitchToMenuTabEvent());

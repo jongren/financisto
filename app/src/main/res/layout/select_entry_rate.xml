@@ -36,7 +36,7 @@
             android:ellipsize="marquee"
             android:fadingEdge="horizontal"
             android:singleLine="true"
-            android:text="Rate"
+            android:text="@string/rate"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <ImageButton

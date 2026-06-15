@@ -36,6 +36,7 @@ import ru.orangesoftware.financisto.model.TransactionStatus;
 import ru.orangesoftware.financisto.recur.Recurrence;
 import ru.orangesoftware.financisto.utils.CurrencyCache;
 import ru.orangesoftware.financisto.utils.MyPreferences;
+import android.util.TypedValue;
 import static ru.orangesoftware.financisto.utils.TransactionTitleUtils.generateTransactionTitle;
 
 import ru.orangesoftware.financisto.utils.StringUtil;
@@ -52,6 +53,7 @@ public class BlotterListAdapter extends ResourceCursorAdapter {
     protected final Drawable icBlotterSplit;
     protected final Utils u;
     protected final DatabaseAdapter db;
+    protected final int textColorPrimary;
 
     private final int colors[];
 
@@ -78,6 +80,10 @@ public class BlotterListAdapter extends ResourceCursorAdapter {
         this.colors = initializeColors(context);
         this.showRunningBalance = MyPreferences.isShowRunningBalance(context);
         this.db = db;
+
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+        this.textColorPrimary = typedValue.data;
     }
 
     private int[] initializeColors(Context context) {
@@ -230,7 +236,7 @@ public class BlotterListAdapter extends ResourceCursorAdapter {
         String category = getCategoryTitle(cursor, categoryId);
         String text = generateTransactionTitle(sb, payee, note, location, categoryId, category);
         noteView.setText(text);
-        noteView.setTextColor(Color.WHITE);
+        noteView.setTextColor(textColorPrimary);
     }
 
     private String getCategoryTitle(Cursor cursor, long categoryId) {

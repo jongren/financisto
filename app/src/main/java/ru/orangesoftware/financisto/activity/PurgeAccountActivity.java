@@ -8,7 +8,7 @@
 
 package ru.orangesoftware.financisto.activity;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -90,21 +90,21 @@ public class PurgeAccountActivity extends AbstractActivity {
     private void loadAccount() {
         Intent intent = getIntent();
         if (intent == null) {
-            Toast.makeText(this, "No account specified", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_account_specified, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         long accountId = intent.getLongExtra(ACCOUNT_ID, -1);
         if (accountId <= 0) {
-            Toast.makeText(this, "Invalid account specified", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.invalid_account_specified, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         account = db.getAccount(accountId);
         if (account == null) {
-            Toast.makeText(this, "No account found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_account_found, Toast.LENGTH_SHORT).show();
             finish();
         }
     }
@@ -112,7 +112,7 @@ public class PurgeAccountActivity extends AbstractActivity {
     private void createNodes() {
         x.addInfoNode(layout, 0, R.string.account, account.title);
         x.addInfoNode(layout, 0, R.string.warning, R.string.purge_account_date_summary);
-        dateText = x.addInfoNode(layout, R.id.date, R.string.date, "?");
+        dateText = x.addInfoNode(layout, R.id.date, R.string.date, getString(R.string.unknown_value));
         databaseBackup = x.addCheckboxNode(layout, R.id.backup, R.string.database_backup, R.string.purge_account_backup_database, true);
     }
 

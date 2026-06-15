@@ -1,6 +1,6 @@
 package ru.orangesoftware.financisto.activity;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -257,7 +257,7 @@ public class CategoryActivity extends AbstractActivity implements CategorySelect
             case R.id.category_show_filter:
             case R.id.category_close_filter:
             case R.id.category_show_list:
-                parentCatSelector.onClick(R.id.category);
+                parentCatSelector.onClick(id);
                 break;
 
             // Attributes >>

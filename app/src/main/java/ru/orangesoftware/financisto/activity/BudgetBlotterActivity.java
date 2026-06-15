@@ -24,12 +24,14 @@ import ru.orangesoftware.financisto.model.Budget;
 import ru.orangesoftware.financisto.model.Category;
 import ru.orangesoftware.financisto.model.MyEntity;
 import ru.orangesoftware.financisto.model.Project;
+import ru.orangesoftware.financisto.model.Payee;
 import ru.orangesoftware.financisto.model.Total;
 
 public class BudgetBlotterActivity extends BlotterActivity {
 	
 	private Map<Long, Category> categories;
 	private Map<Long, Project> projects;
+	private Map<Long, Payee> payees;
 	
     public BudgetBlotterActivity() {
 		super();
@@ -39,6 +41,7 @@ public class BudgetBlotterActivity extends BlotterActivity {
 	protected void internalOnCreate(Bundle savedInstanceState) {
 		categories = MyEntity.asMap(db.getCategoriesList(true));
 		projects = MyEntity.asMap(db.getActiveProjectsList(true));
+		payees = db.getAllPayeeByIdMap();
 		super.internalOnCreate(savedInstanceState);
 		bFilter.setVisibility(View.GONE);
 	}
@@ -56,7 +59,7 @@ public class BudgetBlotterActivity extends BlotterActivity {
 	
 	private Cursor getBlotterForBudget(long budgetId) {
 		Budget b = db.load(Budget.class, budgetId);
-		String where = Budget.createWhere(b, categories, projects);
+		String where = Budget.createWhere(b, categories, projects, payees);
 		return db.getBlotterWithSplits(where);
 	}
 
@@ -71,7 +74,7 @@ public class BudgetBlotterActivity extends BlotterActivity {
                         long budgetId = blotterFilter.getBudgetId();
                         Budget b = db.load(Budget.class, budgetId);
                         Total total = new Total(b.getBudgetCurrency());
-                        total.balance = db.fetchBudgetBalance(categories, projects, b);
+                        total.balance = db.fetchBudgetBalance(categories, projects, payees, b);
                         return total;
                     } finally {
                         long t1 = System.currentTimeMillis();

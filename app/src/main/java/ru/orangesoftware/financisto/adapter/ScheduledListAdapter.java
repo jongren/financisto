@@ -14,6 +14,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class ScheduledListAdapter extends BaseAdapter {
     private final Date dt = new Date();
     private final int transferColor;
     private final int scheduledColor;
+    private final int textColorPrimary;
     private final Drawable icBlotterIncome;
     private final Drawable icBlotterExpense;
     private final Drawable icBlotterTransfer;
@@ -60,6 +62,10 @@ public class ScheduledListAdapter extends BaseAdapter {
         this.icBlotterTransfer = context.getResources().getDrawable(R.drawable.ic_blotter_transfer);
         this.u = new Utils(context);
         this.transactions = transactions;
+
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+        this.textColorPrimary = typedValue.data;
     }
 
     public void setTransactions(ArrayList<TransactionInfo> transactions) {
@@ -143,7 +149,7 @@ public class ScheduledListAdapter extends BaseAdapter {
             String payee = t.payee != null ? t.payee.title : null;
             String text = generateTransactionTitle(sb, payee, note, location, t.category.id, category);
             noteView.setText(text);
-            noteView.setTextColor(Color.WHITE);
+            noteView.setTextColor(textColorPrimary);
 
             long amount = t.fromAmount;
             sb.setLength(0);
@@ -164,7 +170,7 @@ public class ScheduledListAdapter extends BaseAdapter {
                     v.bottomView.setText(DateUtils.formatDateTime(context, nextDateTime,
                             DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_ABBREV_MONTH));
                 } else {
-                    v.bottomView.setText("?");
+                    v.bottomView.setText(R.string.unknown_value);
                 }
                 v.bottomView.setTextColor(v.topView.getTextColors().getDefaultColor());
             } else {

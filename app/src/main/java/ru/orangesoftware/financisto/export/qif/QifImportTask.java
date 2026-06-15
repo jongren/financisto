@@ -15,10 +15,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import ru.orangesoftware.financisto.R;
-import ru.orangesoftware.financisto.activity.MainActivity;
 import ru.orangesoftware.financisto.db.DatabaseAdapter;
 import ru.orangesoftware.financisto.export.ImportExportAsyncTask;
-import ru.orangesoftware.financisto.export.ImportExportAsyncTaskListener;
 import ru.orangesoftware.financisto.export.ImportExportException;
 
 /**

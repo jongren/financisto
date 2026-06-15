@@ -7,6 +7,12 @@ import androidx.core.content.ContextCompat;
 public class RequestPermission {
 
     public static boolean isRequestingPermission(Context context, String permission) {
+        if (android.os.Build.VERSION.SDK_INT >= 29 && android.Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)) {
+            return false;
+        }
+        if (android.os.Build.VERSION.SDK_INT < 33 && "android.permission.READ_MEDIA_IMAGES".equals(permission)) {
+            return false;
+        }
         if (!checkPermission(context, permission)) {
             RequestPermissionActivity_.intent(context).requestedPermission(permission).start();
             return true;

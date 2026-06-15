@@ -17,7 +17,7 @@ import ru.orangesoftware.financisto.R;
 import ru.orangesoftware.financisto.adapter.AttributeListAdapter;
 import ru.orangesoftware.financisto.db.DatabaseHelper.AttributeColumns;
 import ru.orangesoftware.financisto.utils.MenuItemInfo;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;

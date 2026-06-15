@@ -279,6 +279,8 @@
     <string name="csv_export_inprogress">Exporting database to CSV…</string>
     <string name="restore_database">Restore Database</string>
     <string name="restore_database_inprogress">Restoring database…</string>
+    <string name="restore_database_from_storage">Restore from Storage</string>
+    <string name="restore_database_from_storage_summary">Restore database by selecting a backup file</string>
     <string name="restore_database_gdocs">Restore from Google Drive</string>
     <string name="restore_database_inprogress_gdocs">Restoring database…</string>
     <string name="restore_database_inprogress_dropbox">Restoring database…</string>
@@ -822,6 +824,8 @@
 
     <string name="period_this_and_last_week">This and last week</string>
     <string name="period_this_and_last_month">This and last month</string>
+    <string name="period_this_year">This year</string>
+    <string name="period_last_year">Last year</string>
     <string name="period_custom">Custom</string>
 
     <string name="original_amount">Original Amount</string>
@@ -1013,5 +1017,43 @@
         <item>Show Filter</item>
         <item>Show List</item>
     </string-array>
+
+    <string name="unable_to_start_camera">Unable to start camera: %1$s</string>
+    <string name="unable_to_pick_image">Unable to pick image: %1$s</string>
+    <string name="no_account_specified">No account specified</string>
+    <string name="invalid_account_specified">Invalid account specified</string>
+    <string name="no_account_found">No account found</string>
+    <string name="unknown_value">?</string>
+    <string name="budget_ratio_placeholder">*/*</string>
+    <string name="decimal_point">.</string>
+
+    <!-- Google Sheets Sync -->
+    <string name="google_sheets_sync">Google Sheets Sync</string>
+    <string name="google_sheets_sync_summary">Sync family transactions to Google Sheets</string>
+    <string name="sheets_section_account">Google Account</string>
+    <string name="sheets_section_payee_filter">Sync Filter (Payees)</string>
+    <string name="sheets_section_auto_sync">Auto Sync Frequency</string>
+    <string name="sheets_not_linked">Google Account not linked</string>
+    <string name="sheets_linked_as">Linked as: %s</string>
+    <string name="sheets_link_account">Link Account</string>
+    <string name="sheets_unlink_account">Unlink Account</string>
+    <string name="sheets_account_linked">Google Account linked successfully</string>
+    <string name="sheets_account_unlinked">Google Account unlinked</string>
+    <string name="sheets_sign_in_failed">Google sign-in failed, please try again</string>
+    <string name="sheets_payee_filter_hint">Select payees to sync to Google Sheets</string>
+    <string name="sheets_sync_disabled">Disable auto-sync</string>
+    <string name="sheets_sync_daily">Sync daily</string>
+    <string name="sheets_sync_weekly">Sync weekly</string>
+    <string name="sheets_save_settings">Save Settings</string>
+    <string name="sheets_settings_saved">Settings saved</string>
+    <string name="sheets_sync_now">Sync Now</string>
+    <string name="sheets_syncing">Syncing, please wait...</string>
+    <string name="sheets_sync_success">Synced successfully, %d records</string>
+    <string name="sheets_sync_error">Sync failed: %s</string>
+    <string name="sheets_no_data">No matching transactions to sync</string>
+    <string name="sheets_no_payees_selected">Please select at least one payee</string>
+    <string name="sheets_permission_granted">Google Sheets authorized, restarting sync...</string>
+    <string name="sheets_section_year">Sync Year</string>
+    <string name="sheets_section_budget">Monthly Budget</string>
 
 </resources>

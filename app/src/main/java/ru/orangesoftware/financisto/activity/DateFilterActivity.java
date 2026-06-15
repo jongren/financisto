@@ -97,6 +97,13 @@ public class DateFilterActivity extends Activity {
         });
 		
 		Button bNoFilter = findViewById(R.id.bNoFilter);
+		if (bNoFilter != null) {
+			for (android.graphics.drawable.Drawable drawable : bNoFilter.getCompoundDrawables()) {
+				if (drawable != null) {
+					drawable.mutate().setColorFilter(getResources().getColor(R.color.holo_gray_bright), android.graphics.PorterDuff.Mode.SRC_ATOP);
+				}
+			}
+		}
 		bNoFilter.setOnClickListener(v -> {
             setResult(RESULT_FIRST_USER);
             finish();

@@ -61,6 +61,8 @@ public class CategorySelectorActivity extends AbstractListActivity {
         bBack.setOnClickListener(view -> {
             if (navigator.goBack()) {
                 recreateAdapter();
+            } else {
+                finish();
             }
         });
         Button bSelect = findViewById(R.id.bSelect);
@@ -96,7 +98,6 @@ public class CategorySelectorActivity extends AbstractListActivity {
 
     @Override
     protected ListAdapter createAdapter(Cursor cursor) {
-        bBack.setEnabled(navigator.canGoBack());
         return new CategoryAdapter(navigator.categories);
     }
 
@@ -165,7 +166,11 @@ public class CategorySelectorActivity extends AbstractListActivity {
                 v = (BlotterListAdapter.BlotterViewHolder)convertView.getTag();
             }
             Category c = getItem(position);
-            if (c.id == CategoryTreeNavigator.INCOME_CATEGORY_ID) {
+            if (c.id == Category.SPLIT_CATEGORY_ID) {
+                v.centerView.setText(getString(R.string.split));
+            } else if (c.id == Category.NO_CATEGORY_ID) {
+                v.centerView.setText(getString(R.string.no_category));
+            } else if (c.id == CategoryTreeNavigator.INCOME_CATEGORY_ID) {
                 v.centerView.setText(getString(R.string.income));                
             } else if (c.id == CategoryTreeNavigator.EXPENSE_CATEGORY_ID) {
                 v.centerView.setText(getString(R.string.expense));

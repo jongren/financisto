@@ -11,6 +11,7 @@ import ru.orangesoftware.financisto.model.Account;
 import ru.orangesoftware.financisto.model.Budget;
 import ru.orangesoftware.financisto.model.Currency;
 import ru.orangesoftware.financisto.model.MultiChoiceItem;
+import ru.orangesoftware.financisto.model.Payee;
 import ru.orangesoftware.financisto.utils.RecurUtils;
 import ru.orangesoftware.financisto.utils.RecurUtils.Recur;
 import ru.orangesoftware.financisto.widget.AmountInput;
@@ -42,6 +43,7 @@ public class BudgetActivity extends AbstractActivity {
     private List<AccountOption> accountOptions;
     private ProjectSelector<BudgetActivity> projectSelector;
     private CategorySelector<BudgetActivity> categorySelector;
+    private PayeeSelector<BudgetActivity> payeeSelector;
 
     private ListAdapter accountAdapter;
     private int selectedAccountOption;
@@ -53,6 +55,9 @@ public class BudgetActivity extends AbstractActivity {
 
         accountOptions = createAccountsList();
         accountAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, accountOptions);
+
+        payeeSelector = new PayeeSelector<>(this, db, x, R.string.no_payees);
+        payeeSelector.initMultiSelect();
 
         categorySelector = new CategorySelector<>(this, db, x);
         categorySelector.setEmptyResId(R.string.no_categories);
@@ -70,6 +75,8 @@ public class BudgetActivity extends AbstractActivity {
 
         accountText = x.addListNode(layout, R.id.account,
                 R.string.account, R.string.select_account);
+
+        payeeSelector.createNode(layout);
 
         categorySelector.createNode(layout, FILTER);
 
@@ -142,6 +149,9 @@ public class BudgetActivity extends AbstractActivity {
     private void editBudget() {
         titleText.setText(budget.title);
         amountInput.setAmount(budget.amount);
+        payeeSelector.updateCheckedEntities(budget.payees);
+        payeeSelector.fillCheckedEntitiesInUI();
+
         categorySelector.updateCheckedEntities(budget.categories);
         categorySelector.fillCategoryInUI();
 
@@ -164,6 +174,7 @@ public class BudgetActivity extends AbstractActivity {
         budget.includeSubcategories = cbIncludeSubCategories.isChecked();
         budget.includeCredit = cbIncludeCredit.isChecked();
         budget.expanded = cbMode.isChecked();
+        budget.payees = payeeSelector.getCheckedIdsAsStr();
         budget.categories = categorySelector.getCheckedIdsAsStr();
         budget.projects = projectSelector.getCheckedIdsAsStr();
     }
@@ -189,6 +200,14 @@ public class BudgetActivity extends AbstractActivity {
             case R.id.category_close_filter:
             case R.id.category_show_filter:
                 categorySelector.onClick(id);
+                break;
+            case R.id.payee:
+            case R.id.payee_clear:
+            case R.id.payee_show_list:
+            case R.id.payee_add:
+            case R.id.payee_show_filter:
+            case R.id.payee_close_filter:
+                payeeSelector.onClick(id);
                 break;
             case R.id.project:
             case R.id.project_clear:
@@ -222,6 +241,9 @@ public class BudgetActivity extends AbstractActivity {
     @Override
     public void onSelectedId(int id, long selectedId) {
         switch (id) {
+            case R.id.payee:
+                payeeSelector.onSelectedId(id, selectedId);
+                break;
             case R.id.category:
                 categorySelector.onSelectedId(id, selectedId);
                 categorySelector.fillCategoryInUI();
@@ -235,6 +257,9 @@ public class BudgetActivity extends AbstractActivity {
     @Override
     public void onSelected(int id, List<? extends MultiChoiceItem> items) {
         switch (id) {
+            case R.id.payee:
+                payeeSelector.onSelected(id, items);
+                break;
             case R.id.category:
                 categorySelector.onSelected(id, items);
                 break;

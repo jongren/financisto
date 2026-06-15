@@ -185,15 +185,16 @@ public class NodeInflater {
         public PictureBuilder withPicture(final Context context, String pictureFileName) {
             final ImageView imageView = v.findViewById(R.id.picture);
             imageView.setOnClickListener(arg0 -> {
-                if (isRequestingPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                String readPermission = android.os.Build.VERSION.SDK_INT >= 33 ? "android.permission.READ_MEDIA_IMAGES" : Manifest.permission.READ_EXTERNAL_STORAGE;
+                if (isRequestingPermission(context, readPermission)) {
                     return;
                 }
                 String fileName = (String) imageView.getTag(R.id.attached_picture);
                 if (fileName != null) {
-                    Uri target = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID, PicturesUtil.pictureFile(fileName, true));
+                    Uri target = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID, PicturesUtil.pictureFile(context, fileName, true));
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
-                    intent.setDataAndType(target, "image/jpeg");
+                    intent.setDataAndType(target, "image/*");
                     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     context.startActivity(intent);
                 }

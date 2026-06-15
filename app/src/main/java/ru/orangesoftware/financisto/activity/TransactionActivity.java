@@ -148,10 +148,11 @@ public class TransactionActivity extends AbstractTransactionActivity {
     }
 
     private void updateSplits() {
+        long parentPayeeId = isShowPayee ? payeeSelector.getSelectedEntityId() : 0;
         for (Map.Entry<View, Transaction> entry : viewToSplitMap.entrySet()) {
             View v = entry.getKey();
             Transaction split = entry.getValue();
-            setSplitData(v, split);
+            setSplitData(v, split, parentPayeeId);
         }
         updateUnsplitAmount();
     }
@@ -543,7 +544,12 @@ public class TransactionActivity extends AbstractTransactionActivity {
         if (v == null) {
             v = x.addSplitNodeMinus(splitsLayout, R.id.edit_aplit, R.id.delete_split, R.string.split, "");
         }
-        setSplitData(v, split);
+        // 用 transaction.payeeId 取得主交易受款人，避免依賴 payeeSelector 的初始化時序
+        long parentPayeeId = isShowPayee ? payeeSelector.getSelectedEntityId() : 0;
+        if (parentPayeeId == 0 && transaction != null) {
+            parentPayeeId = transaction.payeeId;
+        }
+        setSplitData(v, split, parentPayeeId);
         viewToSplitMap.put(v, split);
         updateUnsplitAmount();
     }
@@ -558,30 +564,38 @@ public class TransactionActivity extends AbstractTransactionActivity {
         return null;
     }
 
-    private void setSplitData(View v, Transaction split) {
+    private void setSplitData(View v, Transaction split, long parentPayeeId) {
         TextView label = v.findViewById(R.id.label);
         TextView data = v.findViewById(R.id.data);
-        setSplitData(split, label, data);
+        setSplitData(split, label, data, parentPayeeId);
     }
 
-    private void setSplitData(Transaction split, TextView label, TextView data) {
+    private void setSplitData(Transaction split, TextView label, TextView data, long parentPayeeId) {
         if (split.isTransfer()) {
             setSplitDataTransfer(split, label, data);
         } else {
-            setSplitDataTransaction(split, label, data);
+            setSplitDataTransaction(split, label, data, parentPayeeId);
         }
     }
 
-    private void setSplitDataTransaction(Transaction split, TextView label, TextView data) {
-        label.setText(createSplitTransactionTitle(split));
+    private void setSplitDataTransaction(Transaction split, TextView label, TextView data, long parentPayeeId) {
+        label.setText(createSplitTransactionTitle(split, parentPayeeId));
         Currency currency = getCurrency();
         u.setAmountText(data, currency, split.fromAmount, false);
     }
 
-    private String createSplitTransactionTitle(Transaction split) {
+    private String createSplitTransactionTitle(Transaction split, long parentPayeeId) {
         StringBuilder sb = new StringBuilder();
         Category category = db.getCategoryWithParent(split.categoryId);
         sb.append(category.title);
+        // 若分割項目的受款人與主交易不同，顯示受款人名稱
+        if (split.payeeId > 0 && split.payeeId != parentPayeeId) {
+            ru.orangesoftware.financisto.model.Payee payee =
+                    db.load(ru.orangesoftware.financisto.model.Payee.class, split.payeeId);
+            if (payee != null && isNotEmpty(payee.title)) {
+                sb.append(" · ").append(payee.title);
+            }
+        }
         if (isNotEmpty(split.note)) {
             sb.append(" (").append(split.note).append(")");
         }

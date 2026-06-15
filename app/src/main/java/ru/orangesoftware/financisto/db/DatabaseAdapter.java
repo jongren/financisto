@@ -345,7 +345,9 @@ public class DatabaseAdapter extends MyEntityManager {
                 split.parentId = parent.id;
                 split.dateTime = parent.dateTime;
                 split.fromAccountId = parent.fromAccountId;
-                split.payeeId = parent.payeeId;
+                if (split.payeeId <= 0) {
+                    split.payeeId = parent.payeeId;
+                }
                 split.isTemplate = parent.isTemplate;
                 split.status = parent.status;
                 updateSplitOriginalAmount(parent, split);
@@ -640,6 +642,7 @@ public class DatabaseAdapter extends MyEntityManager {
             updateCategoryTreeInTransaction(tree);
             updateCategory(category.id, category.title, newCategoryType);
             updateChildCategoriesType(newCategoryType, oldCategory.left, oldCategory.right);
+            updateNoCategoryBounds();
         }
     }
 
@@ -664,7 +667,10 @@ public class DatabaseAdapter extends MyEntityManager {
                 String s = String.valueOf(id);
                 try (Cursor c2 = db.query(GET_PARENT_SQL, new String[]{CategoryColumns._id.name()}, null, new String[]{s, s}, null, null, null, "1")) {
                     if (c2.moveToFirst()) {
-                        cat.parent = new Category(c2.getLong(0));
+                        long parentId = c2.getLong(0);
+                        if (parentId > 0) {
+                            cat.parent = new Category(parentId);
+                        }
                     }
                 }
                 return cat;
@@ -855,6 +861,7 @@ public class DatabaseAdapter extends MyEntityManager {
         values.put(CategoryColumns.type.name(), type);
         long id = db.insert(CATEGORY_TABLE, null, values);
         updateChildCategoriesType(type, left, right);
+        updateNoCategoryBounds();
         return id;
     }
 
@@ -911,6 +918,7 @@ public class DatabaseAdapter extends MyEntityManager {
             db.execSQL(DELETE_CATEGORY_UPDATE1, args);
             db.delete(CATEGORY_TABLE, CategoryColumns.left + " BETWEEN ? AND ?", args);
             db.execSQL(String.format(DELETE_CATEGORY_UPDATE2, left, width, width, right));
+            updateNoCategoryBounds();
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -928,6 +936,7 @@ public class DatabaseAdapter extends MyEntityManager {
         db().delete("category", "_id > 0", null);
         insertCategoryInTransaction(tree);
         updateCategoryTreeInTransaction(tree);
+        updateNoCategoryBounds();
     }
 
     private void insertCategoryInTransaction(CategoryTree<Category> tree) {
@@ -944,6 +953,7 @@ public class DatabaseAdapter extends MyEntityManager {
         db.beginTransaction();
         try {
             updateCategoryTreeInTransaction(tree);
+            updateNoCategoryBounds();
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -953,8 +963,6 @@ public class DatabaseAdapter extends MyEntityManager {
     private static final String WHERE_CATEGORY_ID = CategoryColumns._id + "=?";
 
     private void updateCategoryTreeInTransaction(CategoryTree<Category> tree) {
-        int left = 1;
-        int right = 2;
         ContentValues values = new ContentValues();
         String[] sid = new String[1];
         for (Category c : tree) {
@@ -965,17 +973,23 @@ public class DatabaseAdapter extends MyEntityManager {
             if (c.hasChildren()) {
                 updateCategoryTreeInTransaction(c.children);
             }
-            if (c.left < left) {
-                left = c.left;
-            }
-            if (c.right > right) {
-                right = c.right;
+        }
+    }
+
+    private void updateNoCategoryBounds() {
+        SQLiteDatabase db = db();
+        int minLeft = 2;
+        int maxRight = 1;
+        try (Cursor c = db.rawQuery("SELECT MIN(" + CategoryColumns.left + "), MAX(" + CategoryColumns.right + ") FROM " + CATEGORY_TABLE + " WHERE " + CategoryColumns._id + ">0", null)) {
+            if (c.moveToFirst() && !c.isNull(0)) {
+                minLeft = c.getInt(0);
+                maxRight = c.getInt(1);
             }
         }
-        values.put(CategoryColumns.left.name(), left - 1);
-        values.put(CategoryColumns.right.name(), right + 1);
-        sid[0] = String.valueOf(Category.NO_CATEGORY_ID);
-        db().update(CATEGORY_TABLE, values, WHERE_CATEGORY_ID, sid);
+        ContentValues values = new ContentValues();
+        values.put(CategoryColumns.left.name(), minLeft - 1);
+        values.put(CategoryColumns.right.name(), maxRight + 1);
+        db.update(CATEGORY_TABLE, values, CategoryColumns._id + "=0", null);
     }
 
     // ===================================================================
@@ -1439,7 +1453,11 @@ public class DatabaseAdapter extends MyEntityManager {
     private static final String[] SUM_FROM_AMOUNT = new String[]{"sum(from_amount)"};
 
     public long fetchBudgetBalance(Map<Long, Category> categories, Map<Long, Project> projects, Budget b) {
-        String where = Budget.createWhere(b, categories, projects);
+        return fetchBudgetBalance(categories, projects, java.util.Collections.emptyMap(), b);
+    }
+
+    public long fetchBudgetBalance(Map<Long, Category> categories, Map<Long, Project> projects, Map<Long, Payee> payees, Budget b) {
+        String where = Budget.createWhere(b, categories, projects, payees);
         Cursor c = db().query(V_BLOTTER_FOR_ACCOUNT_WITH_SPLITS, SUM_FROM_AMOUNT, where, null, null, null, null);
         try {
             if (c.moveToNext()) {

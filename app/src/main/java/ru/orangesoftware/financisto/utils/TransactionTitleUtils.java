@@ -21,6 +21,9 @@ public class TransactionTitleUtils {
     }
 
     private static String generateTransactionTitleForRegular(StringBuilder sb, String payee, String note, String location, String category) {
+        if ("<NO_CATEGORY>".equals(category)) {
+            category = null;
+        }
         String secondPart = joinAdditionalFields(sb, payee, note, location);
         if (isNotEmpty(category)) {
             if (isNotEmpty(secondPart)) {
@@ -54,6 +57,9 @@ public class TransactionTitleUtils {
         } else {
             if (isNotEmpty(secondPart)) {
                 return sb.append("[...] ").append(secondPart).toString();
+            }
+            if ("<SPLIT_CATEGORY>".equals(category)) {
+                return "[Split...]";
             }
             return category;
         }

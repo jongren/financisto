@@ -20,5 +20,5 @@ select
        t.payee_id as payee_id,
        t.status as status
 from payee p
-inner join v_blotter_for_account t on t.payee_id=p._id
+inner join v_blotter_flatsplits t on t.payee_id=p._id
 where p._id != 0 and from_account_is_include_into_totals=1;

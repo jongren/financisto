@@ -6,7 +6,7 @@ import org.greenrobot.eventbus.EventBus;
 @EBean(scope = EBean.Scope.Singleton)
 public class GreenRobotBus {
 
-    public final EventBus bus = new EventBus();
+    public final EventBus bus = EventBus.getDefault();
 
     public void post(Object event) {
         bus.post(event);

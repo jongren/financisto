@@ -58,6 +58,9 @@ public class RequestPermissionActivity extends Activity {
     @AfterViews
     public void initViews() {
         checkPermissions();
+        if (requestedPermission != null && !isGranted(requestedPermission)) {
+            ActivityCompat.requestPermissions(this, new String[]{requestedPermission}, 0);
+        }
     }
 
     private void checkPermissions() {

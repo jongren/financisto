@@ -52,7 +52,7 @@ public class TransactionsListAdapter extends BlotterListAdapter {
         } else {
             String title = cursor.getString(BlotterColumns.from_account_title.ordinal());
             v.topView.setText(title);
-            v.centerView.setTextColor(Color.WHITE);
+            v.centerView.setTextColor(textColorPrimary);
         }
 
         long categoryId = cursor.getLong(BlotterColumns.category_id.ordinal());

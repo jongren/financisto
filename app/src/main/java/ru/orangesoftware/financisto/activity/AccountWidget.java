@@ -163,7 +163,7 @@ public class AccountWidget extends AppWidgetProvider {
     }
 
     private static void addTapOnClick(Context context, RemoteViews updateViews) {
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, MainCompatActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         updateViews.setOnClickPendingIntent(R.id.layout, pendingIntent);
     }

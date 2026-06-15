@@ -8,7 +8,7 @@
 
 package ru.orangesoftware.financisto.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -85,8 +85,16 @@ public class FolderBrowser extends ListActivity {
 
     private void createNewFolder() {
         final EditText editText = new EditText(this);
+        android.widget.TextView title = new android.widget.TextView(this);
+        title.setText(R.string.create_new_folder_title);
+        title.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        title.setTextColor(android.graphics.Color.WHITE);
+        title.setTextSize(20);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        int p = (int) (getResources().getDisplayMetrics().density * 16);
+        title.setPadding(p, p, p, p);
         Dialog d = new AlertDialog.Builder(this)
-                .setTitle(R.string.create_new_folder_title)
+                .setCustomTitle(title)
                 .setView(editText)
                 .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                     @Override

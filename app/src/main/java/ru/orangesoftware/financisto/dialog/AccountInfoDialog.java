@@ -7,7 +7,7 @@
  */
 package ru.orangesoftware.financisto.dialog;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -60,6 +60,76 @@ public class AccountInfoDialog {
         createNodes(a, layout);
 
         showDialog(v, titleView);
+    }
+
+    public static void show(android.app.Activity hostActivity, long accountId,
+                            DatabaseAdapter db, NodeInflater inflater, Runnable onEditClick) {
+        Account a = db.getAccount(accountId);
+        if (a == null) {
+            Toast t = Toast.makeText(hostActivity, R.string.no_account, Toast.LENGTH_LONG);
+            t.show();
+            return;
+        }
+
+        LayoutInflater layoutInflater = (LayoutInflater) hostActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        Utils u = new Utils(hostActivity);
+
+        View v = layoutInflater.inflate(R.layout.info_dialog, null);
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.list);
+
+        View titleView = layoutInflater.inflate(R.layout.info_dialog_title, null);
+        TextView titleLabel = (TextView) titleView.findViewById(R.id.label);
+        TextView titleData = (TextView) titleView.findViewById(R.id.data);
+        ImageView titleIcon = (ImageView) titleView.findViewById(R.id.icon);
+        titleLabel.setText(a.title);
+        AccountType type = AccountType.valueOf(a.type);
+        titleData.setText(type.titleId);
+        titleIcon.setImageResource(type.iconId);
+
+        if (type.isCard) {
+            CardIssuer issuer = CardIssuer.valueOf(a.cardIssuer);
+            View iconRow = inflater.new Builder(layout, R.layout.select_entry_simple_icon)
+                    .withIcon(issuer.iconId).withLabel(R.string.issuer).withData((isNotEmpty(a.issuer) ? a.issuer : "") + " " + (isNotEmpty(a.number) ? "#" + a.number : ""))
+                    .create();
+        }
+        View currencyRow = inflater.new Builder(layout, R.layout.select_entry_simple).withLabel(R.string.currency)
+                .withData(a.currency.title).create();
+        if (type.isCreditCard && a.limitAmount != 0) {
+            long limitAmount = Math.abs(a.limitAmount);
+            long balance = limitAmount + a.totalAmount;
+            View amountRow = inflater.new Builder(layout, R.layout.select_entry_simple).withLabel(R.string.amount)
+                    .withData("").create();
+            TextView amountView = (TextView) amountRow.findViewById(R.id.data);
+            u.setAmountText(amountView, a.currency, a.totalAmount, true);
+            View balanceRow = inflater.new Builder(layout, R.layout.select_entry_simple).withLabel(R.string.balance)
+                    .withData("").create();
+            TextView balanceView = (TextView) balanceRow.findViewById(R.id.data);
+            u.setAmountText(balanceView, a.currency, balance, true);
+        } else {
+            View balanceRow = inflater.new Builder(layout, R.layout.select_entry_simple).withLabel(R.string.balance)
+                    .withData("").create();
+            TextView balanceView = (TextView) balanceRow.findViewById(R.id.data);
+            u.setAmountText(balanceView, a.currency, a.totalAmount, true);
+        }
+        inflater.new Builder(layout, R.layout.select_entry_simple).withLabel(R.string.note)
+                .withData(a.note).create();
+
+        final Dialog d = new AlertDialog.Builder(hostActivity)
+                .setCustomTitle(titleView)
+                .setView(v)
+                .create();
+        d.setCanceledOnTouchOutside(true);
+
+        Button bEdit = (Button) v.findViewById(R.id.bEdit);
+        bEdit.setOnClickListener(arg0 -> {
+            d.dismiss();
+            if (onEditClick != null) onEditClick.run();
+        });
+
+        Button bClose = (Button) v.findViewById(R.id.bClose);
+        bClose.setOnClickListener(arg0 -> d.dismiss());
+
+        d.show();
     }
 
     private View createTitleView(Account a) {

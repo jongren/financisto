@@ -10,10 +10,10 @@
  ******************************************************************************/
 package ru.orangesoftware.financisto.utils;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import androidx.appcompat.app.AlertDialog;
 
 import ru.orangesoftware.financisto.adapter.EntityEnumAdapter;
 
@@ -47,14 +47,22 @@ public abstract class EnumUtils {
 
     public static <V, T extends ExecutableEntityEnum<? super V>> void showPickOneDialog(Context context, int titleId, final T[] items, final V value) {
         ListAdapter adapter = EnumUtils.createEntityEnumAdapter(context, items);
-        AlertDialog dialog = new AlertDialog.Builder(context)
+        android.widget.TextView title = new android.widget.TextView(context);
+        title.setText(titleId);
+        title.setBackgroundColor(context.getResources().getColor(ru.orangesoftware.financisto.R.color.colorPrimary));
+        title.setTextColor(android.graphics.Color.WHITE);
+        title.setTextSize(20);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        int p = (int) (context.getResources().getDisplayMetrics().density * 16);
+        title.setPadding(p, p, p, p);
+        AlertDialog dialog = new AlertDialog.Builder(context, ru.orangesoftware.financisto.R.style.AppAlertDialogTheme)
+                .setCustomTitle(title)
                 .setAdapter(adapter, (dialog1, which) -> {
                     dialog1.dismiss();
                     T e = items[which];
                     e.execute(value);
                 })
                 .create();
-        dialog.setTitle(titleId);
         dialog.show();
     }
 
