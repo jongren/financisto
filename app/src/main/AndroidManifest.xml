@@ -418,7 +418,7 @@
         <activity
             android:name=".activity.AboutActivity"
             android:label="@string/about"
-            android:theme="@style/AppTheme.ActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.WebViewActivity"
             android:label="@string/about" />
