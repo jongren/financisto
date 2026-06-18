@@ -75,9 +75,11 @@ public class RecurActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_LEFT_ICON);
+        boolean hasLeftIcon = requestWindowFeature(Window.FEATURE_LEFT_ICON);
         setContentView(R.layout.recur);
-        setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.ic_dialog_time);
+        if (hasLeftIcon) {
+            setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.ic_dialog_time);
+        }
 
         df = DateUtils.getLongDateFormat(this);
 

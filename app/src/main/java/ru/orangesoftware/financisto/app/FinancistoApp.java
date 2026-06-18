@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowInsets;
 import androidx.multidex.MultiDexApplication;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -36,22 +39,27 @@ public class FinancistoApp extends MultiDexApplication {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
                 android.util.TypedValue outValue = new android.util.TypedValue();
                 activity.getTheme().resolveAttribute(android.R.attr.windowIsFloating, outValue, true);
                 boolean isFloating = outValue.type == android.util.TypedValue.TYPE_INT_BOOLEAN && outValue.data != 0;
 
                 if (!isFloating) {
-                    View decorView = activity.getWindow().getDecorView();
-                    decorView.setOnApplyWindowInsetsListener((v, insets) -> {
-                        int top = insets.getSystemWindowInsetTop();
-                        int bottom = insets.getSystemWindowInsetBottom();
-                        v.setPadding(v.getPaddingLeft(), top, v.getPaddingRight(), bottom);
-                        return insets;
-                    });
+                    if (android.os.Build.VERSION.SDK_INT >= 35) {
+                        View decorView = activity.getWindow().getDecorView();
+                        ViewCompat.setOnApplyWindowInsetsListener(decorView, (v, insets) -> {
+                            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+                            int bottomPadding = Math.max(systemBars.bottom, ime.bottom);
+                            v.setPadding(v.getPaddingLeft(), systemBars.top, v.getPaddingRight(), bottomPadding);
+                            return insets;
+                        });
+                    }
                 }
             }
-
-            @Override public void onActivityStarted(Activity activity) {}
             @Override public void onActivityResumed(Activity activity) {}
             @Override public void onActivityPaused(Activity activity) {}
             @Override public void onActivityStopped(Activity activity) {}

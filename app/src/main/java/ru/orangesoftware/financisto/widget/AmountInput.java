@@ -169,9 +169,11 @@ public class AmountInput extends LinearLayout implements AmountListener {
             return v;
         });
         signSwitcher.setImageDrawable(minusDrawable);
+        primary.setImeOptions(primary.getImeOptions() | android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         primary.setKeyListener(keyListener);
         primary.addTextChangedListener(textWatcher);
         primary.setOnFocusChangeListener(selectAllOnFocusListener);
+        secondary.setImeOptions(secondary.getImeOptions() | android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         secondary.setKeyListener(new DigitsKeyListener(false, false) {
 
             @Override

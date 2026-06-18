@@ -45,9 +45,11 @@ public abstract class AbstractSplitActivity extends AbstractActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_LEFT_ICON);
+        boolean hasLeftIcon = requestWindowFeature(Window.FEATURE_LEFT_ICON);
         setContentView(layoutId);
-        setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.ic_dialog_currency);
+        if (hasLeftIcon) {
+            setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, R.drawable.ic_dialog_currency);
+        }
 
         fetchData();
         // todo.mb: check selector here
